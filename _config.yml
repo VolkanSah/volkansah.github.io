@@ -1,7 +1,7 @@
 title: Obsidian Nightfall
-description: >- 
-An elegant, dark theme created by Volkan Sah, perfect for a modern and sleek user experience. It provides a visually pleasing interface with a focus on readability and style.
-baseurl: "/volkansah.github.io " # The name of your repository
+description: >-
+  An elegant, dark theme created by Volkan Sah, perfect for a modern and sleek user experience. It provides a visually pleasing interface with a focus on readability and style.
+baseurl: "/volkansah.github.io" # The name of your repository
 url: "https://volkansah.github.io" # Your GitHub Pages URL
 theme: minima # Or your custom theme, e.g., "obsidian-nightfall" if developed. ddefault 
 
@@ -11,4 +11,3 @@ kramdown:
   # alternativ: math_engine: katex
   # math_engine_opts: {}  # nur wenn nötig
 # --- remaining config entries below ---
-
