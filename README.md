@@ -2,7 +2,7 @@
 # Obsidian Nightfall v0.12
 #### A Developer's GitHub Page Theme
 
-**Obsidian Nightfall** is a custom Jekyll theme designed specifically for developers who want to showcase their GitHub repositories on a personalized website automatically. This theme can be used as your main GitHub Page (`username.github.io`) or within any sub-repository. It provides a sleek, modern, and dark-themed interface with a focus on readability and usability. [Demo](https://volkansah.github.io/Obsidian-Nightfall/)
+**Obsidian Nightfall** is a custom Jekyll theme designed specifically for developers who want to showcase their GitHub repositories on a personalized website automatically. This theme can be used as your main GitHub Page (`username.github.io`) or within any sub-repository. It provides a sleek, modern, and dark-themed interface with a focus on readability and usability. [Demo](https://volkansah.github.io/)
 
 ## Key Features
 
