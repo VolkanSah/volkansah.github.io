@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <meta name="description" content="Ai Code Craft - development with passion" />
+    <!-- Including Bootstrap CSS for responsive design and layout -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <!-- Including Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+<style>
+/* General styles for the body, links, and buttons */
+        body {
+            background-color: #0D1117;
+            color: #C9D1D9;
+        }
+        a {
+            color: #58A6FF;
+        }
+        a:hover {
+            color: #1F6FEB;
+        }
+        .btn {
+            border-radius: 2px;
+        }
+        .close {
+            color: #58A6FF;
+            font-size: 1.5em;
+        }
+        /* Card styling to match the dark theme */
+        .card {
+            background-color: #161B22;
+            border: 1px solid #05172c;
+            border-radius: 2px;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+        }
+        /* Navbar styling for dark theme */
+        .navbar {
+            background-color: #161B22;
+        }
+        
+        /* Logo styling */
+        .logo {
+            margin-top: 15px;
+            width: 199px;
+            height: 50px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        /* Social media links in the navbar */
+        .nav-social-links {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .nav-social-links .nav-item {
+            margin-left: 15px;
+        }
+        .nav-social-links .nav-item a {
+            color: #000;
+            font-size: 16px;
+        }
+        .nav-social-links .nav-item a:hover {
+            color: #f00;
+        }
+        /* Navbar link styling */
+        .navbar-nav .nav-link {
+            color: #000;
+            font-size: 13px;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #f00;
+        }
+        .navbar-nav .nav-item .fab {
+            color: #aba5a5;
+            font-size: 18px;
+        }
+        .navbar-nav .nav-item .fab:hover {
+            color: #f00;
+        }
+        /* Modal window styling */
+        .modal .modal-content {
+            background-color: #0D1117;
+            color: #C9D1D9;
+            border: 1px solid #05172c;
+            border-radius: 2px;
+        }
+        .modal .modal-header,
+        .modal .modal-footer {
+            border: none;
+        }
+        .modal-content p {
+            text-align: justify;
+        }
+        .modal-style-service {
+            list-style-type: none;
+        }
+        /* Heading styles */
+        h1,h2 {
+            font-size: 1.75rem;
+        }
+        h3,h4,h5 {
+            font-size: 1.45rem;
+        }
+        /* Footer styling */
+        footer {
+            background-color: #161B22;
+            padding: 20px 0;
+            color: #C9D1D9;
+            margin-top: 20px;
+        }
+        .footer-image {
+            height: 250px;
+            width: auto;
+            object-fit: cover;
+            margin: -50px 0;
+            border: 1px solid #C9D1D9;
+        }
+        .footer-card {
+            background-color: transparent;
+            border-bottom: 1px solid #05172c;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        footer h3 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+        footer ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        footer ul li {
+            padding-bottom: 5px;
+        }
+        /* Copyright section styling */
+        .copyright-row {
+            background-color: #0D1117;
+            text-align: center;
+            font-size: 12px;
+            padding-top: 20px;
+        }
+
+/* Code highlighting styling for a dark theme */
+.highlight {
+    background-color: #21262D !important; /* Slightly lighter background for the code block */
+    color: #C9D1D9 !important; /* Light text for good contrast */
+    border-radius: 5px !important; /* Rounded corners for a softer look */
+    padding: 12px !important; /* Adequate padding for readability */
+    margin: 16px 0 !important; /* Space above and below to separate the code block */
+    overflow: auto !important; /* Scrollable if necessary */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
+}
+
+/* Styling for actual code lines */
+.highlight pre {
+    background-color: transparent !important; /* No background for pre tag */
+    color: inherit !important; /* Inherits the parent element's color */
+    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
+    font-size: 14px !important; /* Appropriate font size */
+    line-height: 1.6 !important; /* Good line height for readability */
+    margin: 0 !important; /* No extra space within the pre tag */
+}
+
+/* Styling for specific elements within the code */
+.highlight .hljs-keyword,
+.highlight .hljs-built_in,
+.highlight .hljs-literal,
+.highlight .hljs-symbol,
+.highlight .hljs-bullet,
+.highlight .hljs-link {
+    color: #FF7B72 !important; /* Highlight keywords in red */
+}
+
+.highlight .hljs-string,
+.highlight .hljs-title,
+.highlight .hljs-name,
+.highlight .hljs-type,
+.highlight .hljs-attr {
+    color: #A5D6FF !important; /* Highlight strings and titles in blue */
+}
+
+.highlight .hljs-comment,
+.highlight .hljs-quote {
+    color: #8B949E !important; /* Muted color for comments */
+    font-style: italic !important; /* Italicize comments */
+}
+
+/* Fancy hover effects */
+.highlight:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
+    transform: scale(1.02) !important; /* Slight zoom on hover */
+}
+
+/* Custom scrollbar styling for dark theme */
+.highlight::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.highlight::-webkit-scrollbar-thumb {
+    background-color: #444C56 !important; /* Darker scrollbar thumb */
+    border-radius: 10px !important;
+}
+
+.highlight::-webkit-scrollbar-track {
+    background-color: #0D1117 !important;
+}
+
+/* Styling for Snippet Clipboard Content, matching dark theme */
+.snippet-clipboard-content {
+    background-color: #21262D !important; /* Dark background for snippet area */
+    color: #C9D1D9 !important; /* Light text for good contrast */
+    border-radius: 5px !important; /* Rounded corners for a soft look */
+    padding: 12px !important; /* Adequate padding for readability */
+    margin: 16px 0 !important; /* Space above and below to separate snippet area */
+    overflow: auto !important; /* Scrollable if necessary */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
+}
+
+/* Styling for code lines in the snippet */
+.snippet-clipboard-content pre {
+    background-color: transparent !important; /* No background for pre tag */
+    color: inherit !important; /* Inherits the parent element's color */
+    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
+    font-size: 14px !important; /* Appropriate font size */
+    line-height: 1.6 !important; /* Good line height for readability */
+    margin: 0 !important; /* No extra space within the pre tag */
+}
+
+/* Styling for specific elements in the snippet code */
+.snippet-clipboard-content .hljs-keyword,
+.snippet-clipboard-content .hljs-built_in,
+.snippet-clipboard-content .hljs-literal,
+.snippet-clipboard-content .hljs-symbol,
+.snippet-clipboard-content .hljs-bullet,
+.snippet-clipboard-content .hljs-link {
+    color: #FF7B72 !important; /* Highlight keywords in red */
+}
+
+.snippet-clipboard-content .hljs-string,
+.snippet-clipboard-content .hljs-title,
+.snippet-clipboard-content .hljs-name,
+.snippet-clipboard-content .hljs-type,
+.snippet-clipboard-content .hljs-attr {
+    color: #A5D6FF !important; /* Highlight strings and titles in blue */
+}
+
+.snippet-clipboard-content .hljs-comment,
+.snippet-clipboard-content .hljs-quote {
+    color: #8B949E !important; /* Muted color for comments */
+    font-style: italic !important; /* Italicize comments */
+}
+
+/* Fancy hover effects for snippet */
+.snippet-clipboard-content:hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
+    transform: scale(1.02) !important; /* Slight zoom on hover */
+}
+
+/* Custom scrollbar styling for dark theme in snippet */
+.snippet-clipboard-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.snippet-clipboard-content::-webkit-scrollbar-thumb {
+    background-color: #444C56 !important; /* Darker scrollbar thumb */
+    border-radius: 10px !important;
+}
+
+.snippet-clipboard-content::-webkit-scrollbar-track {
+    background-color: #0D1117 !important;
+}
+
+/* Responsive styling for images in the footer */
+        @media (max-width: 768px) {
+            .footer-image {
+                height: auto;
+                width: 100%;
+                margin: 20px 0;
+            }
+        }               
+</style>
+</head>
+<body>
+<!-- Start of navigation bar -->
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <!-- Website logo -->
+        <a class="navbar-brand" href="https://github.com/volkansah"><img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo">
+        </a>
+        <!-- Button for toggling the navigation menu on small screens -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Navigation links -->
+        <div class="collapse navbar-collapse nav-social-links" id="navbarNav">
+            <div class="d-flex">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.html">Overview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" target="_blank" href="https://volkansah.github.io/">German</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" target="_blank" href="https://jugendamt-deutschland.de/treffen-sie-jade/">JadeGPT</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <!-- Social media links with icons -->
+                    <li class="nav-item">
+                        <a href="https://volkansah.github.io" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-github"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="https://facebook.com/volkansah" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-facebook-f"></i></a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="https://www.instagram.com/childrenexchange/" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-instagram"></i></a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Main content area -->
+<div class="container mt-5">
+    {{ content }}
+</div>
+
+<!-- Footer section -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+            <!-- Footer logo -->
+            <img src="{{ '/assets/img/logo-footer.webp' | relative_url }}" alt="Website Footer Logo">
+            </div>
+            <div class="col-md-3">
+                <h3>Main Services</h3>
+                <ul>
+                    <li>Webserver development</li>
+                    <li>Application development</li>
+                    <li>Design development</li>
+                    <li>Artificial intelligence</li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h3>Optional Services</h3>
+                <ul>
+                    <li>Pentesting Application</li>
+                    <li>Searchengine Optimisation</li>
+                    <li>Social Marketing (SEM)</li>
+                    <li>Offensive Security (NCF)</li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+              <!-- Image in footer -->
+              <img src="{{ '/assets/img/love-you-my-son.webp' | relative_url }}" alt="Love You My Son">
+            </div>
+        </div>
+        <!-- Copyright section dont remove, please!-->
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                <p>&copy; © Volkan Kücükbudak | <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>. All Rights Reserved. Theme by: </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript for Bootstrap and other libraries -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+
+<script>
+/* Function to load README file from GitHub repository */
+function loadReadme(repoFullName, index) {
+  fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
+    headers: { 'Accept': 'application/vnd.github.v3.html' }
+  })
+  .then(response => response.text())
+  .then(data => {
+    // Adjust image URLs
+    const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
+    data = data.replace(/src="([^"]+)"/g, (match, p1) => {
+      // Check if the path is relative
+      if (!p1.startsWith('http') && !p1.startsWith('//')) {
+        return `src="${repoUrl}${p1}"`;
+      }
+      return match;
+    });
+
+    // Adjust anchor links
+    data = data.replace(/href="#([^"]+)"/g, (match, p1) => {
+      return `href="#repoContent-${index}-${p1}"`;
+    });
+
+    // Adjust IDs in content
+    data = data.replace(/id="([^"]+)"/g, (match, p1) => {
+      return `id="repoContent-${index}-${p1}"`;
+    });
+
+    document.getElementById(`repoContent-${index}`).innerHTML = data;
+  })
+  .catch(error => {
+    document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
+  });
+}
+
+
+
+
+    
+</script>
+
+    <!-- MathJax konfigurieren -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)'], ['$', '$']],
+    displayMath: [['$$','$$']]
+  },
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>

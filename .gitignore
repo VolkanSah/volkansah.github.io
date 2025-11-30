@@ -1,0 +1,22 @@
+# Jekyll Specific
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+Gemfile.lock
+
+# Bundler specific
+.bundle/
+
+# Log files
+log/
+*.log
+
+# Temporary files
+tmp/
+*.tmp
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
