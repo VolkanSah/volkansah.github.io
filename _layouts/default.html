@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }}</title>
     <meta name="description" content="Ai Code Craft - development with passion" />
-    <!-- Including Bootstrap CSS for responsive design and layout -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <!-- Including Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
 <style>
 /* General styles for the body, links, and buttons */
@@ -282,21 +280,17 @@
                 width: 100%;
                 margin: 20px 0;
             }
-        }               
+        }                
 </style>
 </head>
 <body>
-<!-- Start of navigation bar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <!-- Website logo -->
         <a class="navbar-brand" href="https://github.com/volkansah"><img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="Volkan">
         </a>
-        <!-- Button for toggling the navigation menu on small screens -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- Navigation links -->
         <div class="collapse navbar-collapse nav-social-links" id="navbarNav">
             <div class="d-flex">
                 <ul class="navbar-nav ml-auto">
@@ -309,7 +303,6 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ml-auto">
-                    <!-- Social media links with icons -->
                     <li class="nav-item">
                         <a href="https://gtihub.com/volkansah" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-github"></i></a>
                     </li>
@@ -324,17 +317,14 @@
     </div>
 </nav>
 
-<!-- Main content area -->
 <div class="container mt-5">
     {{ content }}
 </div>
 
-<!-- Footer section -->
 <footer>
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-            <!-- Footer logo -->
             <img src="{{ '/assets/img/logo-footer.webp' | relative_url }}" alt="Website Footer Logo">
             </div>
             <div class="col-md-3">
@@ -356,11 +346,9 @@
                 </ul>
             </div>
             <div class="col-md-3">
-              <!-- Image in footer -->
               <img src="{{ '/assets/img/love-you-my-son.webp' | relative_url }}" alt="Love You My Son">
             </div>
         </div>
-        <!-- Copyright section dont remove, please!-->
         <div class="row mt-4">
             <div class="col-md-12 text-center">
                 <p>&copy; © Volkan Kücükbudak | <a href="https://github.com/VolkanSah/Obsidian-Nightfall/">Obsidian Nightfall Theme</a>. All Rights Reserved. </p>
@@ -369,63 +357,66 @@
     </div>
 </footer>
 
-<!-- JavaScript for Bootstrap and other libraries -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 
 <script>
-/* Function to load README file from GitHub repository */
+/**
+ * Function to load the README file from a GitHub repository using the GitHub API
+ * and inject it into the modal body.
+ * NOTE: This function is also defined in index.md (due to Jekyll's build process)
+ * but is kept here for reference and to ensure modal functionality in other pages.
+ * @param {string} repoFullName - The full name of the repository (e.g., 'volkansah/repo-name').
+ * @param {number} index - The index of the repository/modal for unique ID creation.
+ */
 function loadReadme(repoFullName, index) {
-  fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
-    headers: { 'Accept': 'application/vnd.github.v3.html' }
-  })
-  .then(response => response.text())
-  .then(data => {
-    // Adjust image URLs
-    const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
-    data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-      // Check if the path is relative
-      if (!p1.startsWith('http') && !p1.startsWith('//')) {
-        return `src="${repoUrl}${p1}"`;
-      }
-      return match;
-    });
+  fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
+    headers: { 'Accept': 'application/vnd.github.v3.html' }
+  })
+  .then(response => response.text())
+  .then(data => {
+    // Adjust relative image URLs to point to the raw content
+    const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
+    data = data.replace(/src="([^"]+)"/g, (match, p1) => {
+      // Check if the path is relative (doesn't start with http or //)
+      if (!p1.startsWith('http') && !p1.startsWith('//')) {
+        return `src="${repoUrl}${p1}"`;
+      }
+      return match;
+    });
 
-    // Adjust anchor links
-    data = data.replace(/href="#([^"]+)"/g, (match, p1) => {
-      return `href="#repoContent-${index}-${p1}"`;
-    });
+    // Adjust internal anchor links and IDs to be unique within the modal
+    data = data.replace(/href="#([^"]+)"/g, (match, p1) => {
+      return `href="#repoContent-${index}-${p1}"`;
+    });
 
-    // Adjust IDs in content
-    data = data.replace(/id="([^"]+)"/g, (match, p1) => {
-      return `id="repoContent-${index}-${p1}"`;
-    });
-
-    document.getElementById(`repoContent-${index}`).innerHTML = data;
-  })
-  .catch(error => {
-    document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
-  });
-}
-
-
-
-
+    data = data.replace(/id="([^"]+)"/g, (match, p1) => {
+      return `id="repoContent-${index}-${p1}"`;
+    });
     
+    // Update heading elements to ensure correct unique IDs
+    data = data.replace(/<h([1-6])([^>]*)id="([^"]+)"([^>]*)>/g, `<h$1$2id="repoContent-${index}-$3"$4>`);
+
+
+    document.getElementById(`repoContent-${index}`).innerHTML = data;
+  })
+  .catch(error => {
+    document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
+  });
+}
 </script>
 
-    <!-- MathJax konfigurieren -->
 <script>
 window.MathJax = {
-  tex: {
-    inlineMath: [['\\(','\\)'], ['$', '$']],
-    displayMath: [['$$','$$']]
-  },
-  options: {
-    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
-  }
+  tex: {
+    inlineMath: [['\\(','\\)'], ['$', '$']],
+    displayMath: [['$$','$$']]
+  },
+  options: {
+    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+  }
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
