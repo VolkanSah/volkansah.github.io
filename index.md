@@ -3,146 +3,164 @@ layout: default
 title: My GitHub Repositories
 ---
 
-<div class="container">
-    <div class="row" id="repo-list" data-masonry='{"percentPosition": true }'></div>
-    <div class="row mt-3">
-        <div class="col-12 text-center">
-            <button id="prevPage" class="btn btn-secondary" onclick="loadPrevPage();return false;">Previous</button>
-            <button id="nextPage" class="btn btn-secondary" onclick="loadNextPage();return false;">Next</button>
-        </div>
+<h1 class="sr-only">GitHub Repositories — Volkan Sah</h1>
+
+<div class="row" id="repo-list" aria-live="polite"></div>
+
+<div class="row mt-3">
+    <div class="col-12 text-center">
+        <button id="prevPage" type="button" class="btn btn-secondary" disabled>Previous</button>
+        <button id="nextPage" type="button" class="btn btn-secondary" disabled>Next</button>
     </div>
 </div>
 
 <script>
-let currentPage = 1;
-const perPage = 18; // Number of repositories per page
+(function () {
+'use strict';
 
-// Function to fetch and display GitHub repositories
-function fetchAllRepos(page = 1) {
-    // Clean up modals from previous page so IDs don't collide
-    document.querySelectorAll('.repo-modal-dynamic').forEach(el => el.remove());
+var currentPage = 1;
+var perPage = 18;
+var CACHE_TTL = 3 * 60 * 1000;   /* 3 min — schont das Rate-Limit (60 req/h ohne Token) */
+var cache = {};                  /* page -> { data, linkHeader, ts } */
 
-    // Replace 'volkansah' with your own GitHub username
-    fetch(`https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=${perPage}&page=${page}`)
-        .then(response => {
-            const linkHeader = response.headers.get('Link');
-            updatePaginationButtons(linkHeader);
-            return response.json();
-        })
-        .then(data => {
-            let repoList = document.getElementById('repo-list');
-            repoList.innerHTML = '';
+var listEl  = document.getElementById('repo-list');
+var prevBtn = document.getElementById('prevPage');
+var nextBtn = document.getElementById('nextPage');
 
-            // Filter out repositories you don't want to display
-            let filteredData = data.filter(repo => {
-                return !repo.fork && 
-                       repo.name !== 'volkansah.github.io' && 
-                       repo.name !== 'VolkanSah';
-            });
-
-            filteredData.forEach((repo, index) => {
-                // Card ins Grid
-                let listItem = document.createElement('div');
-                listItem.className = 'col-md-4';
-                listItem.innerHTML = `
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">${repo.name}</h5>
-                            <p class="card-text">${repo.description || 'No description available'}</p>
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#repoModal-${index}" onclick="loadReadme('${repo.full_name}', ${index})">View Details</button>
-                        </div>
-                    </div>
-                `;
-                repoList.appendChild(listItem);
-
-                // Modal direkt ans body — Bootstrap 4 braucht das, sonst öffnet nix
-                let modal = document.createElement('div');
-                modal.className = 'modal fade repo-modal-dynamic';
-                modal.id = `repoModal-${index}`;
-                modal.setAttribute('tabindex', '-1');
-                modal.setAttribute('role', 'dialog');
-                modal.setAttribute('aria-labelledby', `repoModalLabel-${index}`);
-                modal.setAttribute('aria-hidden', 'true');
-                modal.innerHTML = `
-                    <div class="modal-dialog modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title" id="repoModalLabel-${index}">Name: ${repo.name}</h3>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body" id="repoContent-${index}" style="max-height:70vh;overflow-y:auto;">
-                                <p>Loading README...</p>
-                            </div>
-                            <div class="modal-footer">
-                                <a href="${repo.html_url}" target="_blank" class="btn btn-primary">Go to Repository</a>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            });
-
-            // Reinitialize Masonry after all items are added
-            imagesLoaded(repoList, function() {
-                new Masonry(repoList, {
-                    itemSelector: '.col-md-4',
-                    percentPosition: true
-                });
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            let repoList = document.getElementById('repo-list');
-            repoList.innerHTML = '<li>Error loading repositories.</li>';
-        });
+/* API-Daten nie ungefiltert in innerHTML */
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
 }
 
-// Function to update pagination buttons based on the Link header from the GitHub API response
-function updatePaginationButtons(linkHeader) {
-    const links = parseLinkHeader(linkHeader);
-    const prevButton = document.getElementById('prevPage');
-    const nextButton = document.getElementById('nextPage');
-
-    prevButton.disabled = !links.prev;
-    nextButton.disabled = !links.next;
+function renderError(msg) {
+    listEl.innerHTML =
+        '<div class="col-12">' +
+            '<div class="card"><div class="card-body text-center">' +
+                '<p class="card-text">' + esc(msg) + '</p>' +
+                '<button type="button" class="btn btn-secondary" onclick="location.reload()">Retry</button>' +
+            '</div></div>' +
+        '</div>';
 }
 
-// Function to parse the Link header for pagination links
 function parseLinkHeader(header) {
-    if (!header) return {};
-    const parts = header.split(',');
-    const links = {};
-    parts.forEach(p => {
-        const section = p.split(';');
-        if (section.length != 2) return;
-        const url = section[0].replace(/<(.*)>/, '$1').trim();
-        const name = section[1].replace(/rel="(.*)"/, '$1').trim();
-        links[name] = url;
+    var links = {};
+    if (!header) return links;
+    header.split(',').forEach(function (part) {
+        var section = part.split(';');
+        if (section.length !== 2) return;
+        links[section[1].replace(/rel="(.*)"/, '$1').trim()] =
+            section[0].replace(/[<>]/g, '').trim();
     });
     return links;
 }
 
-// Function to load the previous page of repositories
-function loadPrevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        fetchAllRepos(currentPage);
+function updatePaginationButtons(linkHeader) {
+    var links = parseLinkHeader(linkHeader);
+    prevBtn.disabled = currentPage <= 1 || !links.prev;
+    nextBtn.disabled = !links.next;
+}
+
+function fetchAllRepos(page) {
+    var hit = cache[page];
+    if (hit && Date.now() - hit.ts < CACHE_TTL) {
+        renderRepos(hit.data, hit.linkHeader);
+        return;
     }
+
+    listEl.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading repositories…</div>';
+
+    fetch('https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=' + perPage + '&page=' + page)
+        .then(function (response) {
+            if (response.status === 403) {
+                throw new Error('GitHub API rate limit reached — please try again in a few minutes.');
+            }
+            if (!response.ok) {
+                throw new Error('GitHub API error ' + response.status);
+            }
+            var linkHeader = response.headers.get('Link');
+            return response.json().then(function (data) { return { data: data, link: linkHeader }; });
+        })
+        .then(function (result) {
+            cache[page] = { data: result.data, linkHeader: result.link, ts: Date.now() };
+            renderRepos(result.data, result.link);
+        })
+        .catch(function (error) {
+            console.error('Error:', error);
+            renderError(error.message || 'Error loading repositories.');
+        });
 }
 
-// Function to load the next page of repositories
-function loadNextPage() {
-    currentPage++;
-    fetchAllRepos(currentPage);
+function renderRepos(data, linkHeader) {
+    /* alte Modals entsorgen (ID-Kollisionen zwischen Seiten vermeiden) */
+    document.querySelectorAll('.repo-modal-dynamic').forEach(function (el) { el.remove(); });
+
+    var repos = data.filter(function (repo) {
+        return !repo.fork &&
+               repo.name !== 'volkansah.github.io' &&
+               repo.name !== 'VolkanSah';
+    });
+
+    if (repos.length === 0) {
+        listEl.innerHTML = '<div class="col-12 text-center text-muted py-5">No repositories on this page.</div>';
+        updatePaginationButtons(linkHeader);
+        return;
+    }
+
+    var cards = '', modals = document.createDocumentFragment();
+
+    repos.forEach(function (repo, i) {
+        var readme = "loadReadme('" + esc(repo.full_name) + "', " + i + ", '" + esc(repo.default_branch || 'master') + "')";
+
+        cards +=
+            '<div class="col-md-4">' +
+                '<div class="card mb-4"><div class="card-body">' +
+                    '<h5 class="card-title">' + esc(repo.name) + '</h5>' +
+                    '<p class="card-text">' + esc(repo.description || 'No description available') + '</p>' +
+                    '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#repoModal-' + i + '" onclick="' + readme + '">View Details</button>' +
+                '</div></div>' +
+            '</div>';
+
+        var modal = document.createElement('div');
+        modal.className = 'modal fade repo-modal-dynamic';
+        modal.id = 'repoModal-' + i;
+        modal.setAttribute('tabindex', '-1');
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-labelledby', 'repoModalLabel-' + i);
+        modal.setAttribute('aria-hidden', 'true');
+        modal.innerHTML =
+            '<div class="modal-dialog modal-lg" role="document">' +
+                '<div class="modal-content">' +
+                    '<div class="modal-header">' +
+                        '<h3 class="modal-title" id="repoModalLabel-' + i + '">' + esc(repo.name) + '</h3>' +
+                        '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                    '</div>' +
+                    '<div class="modal-body" id="repoContent-' + i + '" style="max-height:70vh;overflow-y:auto;"><p>Loading…</p></div>' +
+                    '<div class="modal-footer">' +
+                        '<a href="' + esc(repo.html_url) + '" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Go to Repository</a>' +
+                        '<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        modals.appendChild(modal);
+    });
+
+    listEl.innerHTML = cards;
+    document.body.appendChild(modals);
+
+    /* Karten haben keine Bilder → imagesLoaded überflüssig, Masonry direkt */
+    new Masonry(listEl, { itemSelector: '.col-md-4', percentPosition: true });
+    updatePaginationButtons(linkHeader);
 }
 
-// Function to load the README.md file of a repository
-// loadReadme() is defined in default.html layout and handles:
-// - image src fixing, anchor namespacing, image-link stripping, MathJax re-render
+prevBtn.addEventListener('click', function () {
+    if (currentPage > 1) fetchAllRepos(--currentPage);
+});
+nextBtn.addEventListener('click', function () {
+    fetchAllRepos(++currentPage);
+});
 
-// Initial load of repositories
-fetchAllRepos();
+fetchAllRepos(currentPage);
+})();
 </script>
