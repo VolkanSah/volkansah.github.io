@@ -3,414 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }}</title>
-    <meta name="description" content="Ai Code Craft - development with passion" />
-    <!-- Including Bootstrap CSS for responsive design and layout -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <!-- Including Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+    <!-- Früh setzen: Nav-Links verstecken sich nur, wenn JS läuft (ohne JS: normal sichtbar) -->
+    <script>document.documentElement.classList.add('js');</script>
+
+    <title>{{ page.title | default: 'Volkan Sah' | escape }}</title>
+    <meta name="description" content="{{ page.description | default: 'Ai Code Craft — development with passion' | escape }}">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#0D1117">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="alternate" type="application/atom+xml" title="{{ site.title | default: 'Volkan Sah' | escape }}" href="{{ '/feed.xml' | absolute_url }}">
+
+    <!-- Link-Previews (Discord, WhatsApp, Signal ...) -->
+    <meta property="og:site_name" content="Volkan Sah">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ page.title | default: 'Volkan Sah' | escape }}">
+    <meta property="og:description" content="{{ page.description | default: 'Ai Code Craft — development with passion' | escape }}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:image" content="{{ '/assets/img/logo.webp' | absolute_url }}">
+
+    <!-- Favicon inline — kein extra Request, kein 404 mehr -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230D1117'/%3E%3Cpath d='M3 4.5l4 3.5-4 3.5' stroke='%2358A6FF' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M9 11.5h4' stroke='%2358A6FF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+
+    <!-- Warm-up: früher 5 CDNs, jetzt alles über einen (jsdelivr, gleiche Versionen) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://api.github.com" crossorigin>
+    <link rel="preconnect" href="https://raw.githubusercontent.com">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13.0/css/all.min.css">
+
 <style>
-/* General styles for the body, links, and buttons */
-        body {
-            background-color: #0D1117;
-            color: #C9D1D9;
-        }
-        a {
-            color: #58A6FF;
-        }
-        a:hover {
-            color: #1F6FEB;
-        }
-        .btn {
-            border-radius: 2px;
-        }
-        .close {
-            color: #58A6FF;
-            font-size: 1.5em;
-        }
-        /* Card styling to match the dark theme */
-        .card {
-            background-color: #161B22;
-            border: 1px solid #05172c;
-            border-radius: 2px;
-            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-        }
-        /* Navbar styling for dark theme */
-        .navbar {
-            background-color: #161B22;
-        }
+/* ---------- base ---------- */
+body { background-color: #0D1117; color: #C9D1D9; }
+a { color: #58A6FF; }
+a:hover { color: #1F6FEB; }
+.btn { border-radius: 2px; }
+.close { color: #58A6FF; font-size: 1.5em; }
 
-        /* Smooth scroll globally */
-        html {
-            scroll-behavior: smooth;
-        }
-        /* modal-body scrollbar smooth */
-        .modal-body {
-            scroll-behavior: smooth;
-        }
-        /* Smooth modal fade — Bootstrap uses .fade already, just extend transition */
-        .modal.fade .modal-dialog {
-            transition: transform 0.25s ease-out, opacity 0.25s ease-out;
-            transform: translateY(-12px);
-        }
-        .modal.show .modal-dialog {
-            transform: translateY(0);
-        }
+.card {
+    background-color: #161B22;
+    border: 1px solid #05172c;
+    border-radius: 2px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
+}
+.navbar { background-color: #161B22; }
 
-        /* Typewriter nav links */
-        .nav-link-type {
-            display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
-            vertical-align: bottom;
-        }
-        .nav-link-type.typing-done {
-            border-right: 2px solid #58A6FF;
-            animation: cursor-fade 0.6s steps(1) 1.2s forwards;
-        }
-        @keyframes cursor-fade {
-            to { border-right-color: transparent; }
-        }
-        
-        /* Logo styling */
-        .logo {
-            margin-top: 15px;
-            width: 199px;
-            height: 50px;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        /* Social media links in the navbar */
-        .nav-social-links {
-            display: flex;
-            justify-content: flex-end;
-        }
-        .nav-social-links .nav-item {
-            margin-left: 15px;
-        }
-        .nav-social-links .nav-item a {
-            color: #000;
-            font-size: 16px;
-        }
-        .nav-social-links .nav-item a:hover {
-            color: #f00;
-        }
-        /* Navbar link styling */
-        .navbar-nav .nav-link {
-            color: #000;
-            font-size: 13px;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #f00;
-        }
-        .navbar-nav .nav-item .fab {
-            color: #aba5a5;
-            font-size: 18px;
-        }
-        .navbar-nav .nav-item .fab:hover {
-            color: #f00;
-        }
-        /* Modal window styling */
-        .modal .modal-content {
-            background-color: #0D1117;
-            color: #C9D1D9;
-            border: 1px solid #05172c;
-            border-radius: 2px;
-        }
-        .modal .modal-header,
-        .modal .modal-footer {
-            border: none;
-        }
-        .modal-content p {
-            text-align: justify;
-        }
-        .modal-style-service {
-            list-style-type: none;
-        }
-        /* Heading styles */
-        h1,h2 {
-            font-size: 1.75rem;
-        }
-        h3,h4,h5 {
-            font-size: 1.45rem;
-        }
-        /* Footer styling */
-        footer {
-            background-color: #161B22;
-            border-top: 1px solid #21262D;
-            padding: 24px 0;
-            color: #8B949E;
-            margin-top: 40px;
-            font-size: 13px;
-        }
-        .footer-inner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-        }
-        .footer-links {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 6px 4px;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .footer-links li a {
-            color: #8B949E;
-            padding: 4px 8px;
-            border-radius: 2px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.15s;
-        }
-        .footer-links li a:hover {
-            color: #58A6FF;
-            text-decoration: none;
-        }
-        .footer-links li a i {
-            font-size: 15px;
-        }
-        .footer-copy {
-            color: #6E7681;
-            font-size: 12px;
-            text-align: center;
-        }
-        .footer-copy a {
-            color: #6E7681;
-        }
-        .footer-copy a:hover {
-            color: #58A6FF;
-        }
-
-/* Code highlighting styling for a dark theme */
-.highlight {
-    background-color: #21262D !important; /* Slightly lighter background for the code block */
-    color: #C9D1D9 !important; /* Light text for good contrast */
-    border-radius: 5px !important; /* Rounded corners for a softer look */
-    padding: 12px !important; /* Adequate padding for readability */
-    margin: 16px 0 !important; /* Space above and below to separate the code block */
-    overflow: auto !important; /* Scrollable if necessary */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
+/* Smooth scroll nur für Leute, die Bewegung mögen */
+@media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    .modal-body { scroll-behavior: smooth; }
 }
 
-/* Styling for actual code lines */
-.highlight pre {
-    background-color: transparent !important; /* No background for pre tag */
-    color: inherit !important; /* Inherits the parent element's color */
-    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
-    font-size: 14px !important; /* Appropriate font size */
-    line-height: 1.6 !important; /* Good line height for readability */
-    margin: 0 !important; /* No extra space within the pre tag */
+/* Modal */
+.modal.fade .modal-dialog {
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+    transform: translateY(-12px);
 }
-
-/* Styling for specific elements within the code */
-.highlight .hljs-keyword,
-.highlight .hljs-built_in,
-.highlight .hljs-literal,
-.highlight .hljs-symbol,
-.highlight .hljs-bullet,
-.highlight .hljs-link {
-    color: #FF7B72 !important; /* Highlight keywords in red */
+.modal.show .modal-dialog { transform: translateY(0); }
+.modal .modal-content {
+    background-color: #0D1117; color: #C9D1D9;
+    border: 1px solid #05172c; border-radius: 2px;
 }
+.modal .modal-header,
+.modal .modal-footer { border: none; }
+.modal-content p { text-align: justify; }
+.modal-style-service { list-style-type: none; }
 
-.highlight .hljs-string,
-.highlight .hljs-title,
-.highlight .hljs-name,
-.highlight .hljs-type,
-.highlight .hljs-attr {
-    color: #A5D6FF !important; /* Highlight strings and titles in blue */
+/* ---------- skip link ---------- */
+.skip {
+    position: absolute; left: .8rem; top: .6rem; z-index: 2000;
+    transform: translateY(-300%);
+    background: #58A6FF; color: #0D1117;
+    font-family: 'Fira Code', monospace; font-size: 13px;
+    padding: .5rem .8rem; border-radius: 2px;
 }
+.skip:focus { transform: none; text-decoration: none; }
 
-.highlight .hljs-comment,
-.highlight .hljs-quote {
-    color: #8B949E !important; /* Muted color for comments */
-    font-style: italic !important; /* Italicize comments */
+/* ---------- typewriter nav ----------
+   .js-Gate: ohne JavaScript sind die Links ganz normal sichtbar */
+.js .nav-link-type {
+    display: inline-block; overflow: hidden; white-space: nowrap;
+    width: 0; vertical-align: bottom;
 }
-
-/* Fancy hover effects */
-.highlight:hover {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
-    transform: scale(1.02) !important; /* Slight zoom on hover */
+.nav-link-type.typing-done {
+    border-right: 2px solid #58A6FF;
+    animation: cursor-fade 0.6s steps(1) 1.2s forwards;
 }
+@keyframes cursor-fade { to { border-right-color: transparent; } }
 
-/* Custom scrollbar styling for dark theme */
-.highlight::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+/* Navbar-Farben — die alten #000-Regeln waren tot (Bootstrap hat sie
+   per Spezifität überschrieben). Jetzt explizit und lesbar. */
+.navbar-dark .navbar-nav .nav-link { color: #C9D1D9; font-size: 13px; }
+.navbar-dark .navbar-nav .nav-link:hover { color: #f00; }
+.navbar-nav .nav-item { margin-left: 15px; }
+.navbar-nav .nav-item .fab { color: #aba5a5; font-size: 18px; }
+.navbar-nav .nav-item .fab:hover { color: #f00; }
+
+/* Headings */
+h1, h2 { font-size: 1.75rem; }
+h3, h4, h5 { font-size: 1.45rem; }
+
+/* ---------- footer ---------- */
+footer {
+    background-color: #161B22;
+    border-top: 1px solid #21262D;
+    padding: 24px 0;
+    color: #8B949E;
+    margin-top: 40px;
+    font-size: 13px;
 }
-
-.highlight::-webkit-scrollbar-thumb {
-    background-color: #444C56 !important; /* Darker scrollbar thumb */
-    border-radius: 10px !important;
+.footer-inner { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.footer-links {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 6px 4px; list-style: none; padding: 0; margin: 0;
 }
-
-.highlight::-webkit-scrollbar-track {
-    background-color: #0D1117 !important;
+.footer-links li a {
+    color: #8B949E; padding: 4px 8px; border-radius: 2px;
+    font-size: 13px; display: flex; align-items: center;
+    gap: 5px; transition: color 0.15s;
 }
+.footer-links li a:hover { color: #58A6FF; text-decoration: none; }
+.footer-links li a i { font-size: 15px; }
+.footer-copy { color: #6E7681; font-size: 12px; text-align: center; }
+.footer-copy a { color: #6E7681; }
+.footer-copy a:hover { color: #58A6FF; }
 
-/* Styling for Snippet Clipboard Content, matching dark theme */
-.snippet-clipboard-content {
-    background-color: #21262D !important; /* Dark background for snippet area */
-    color: #C9D1D9 !important; /* Light text for good contrast */
-    border-radius: 5px !important; /* Rounded corners for a soft look */
-    padding: 12px !important; /* Adequate padding for readability */
-    margin: 16px 0 !important; /* Space above and below to separate snippet area */
-    overflow: auto !important; /* Scrollable if necessary */
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important; /* Soft drop shadow */
+/* ---------- code blocks ----------
+   .highlight + .snippet-clipboard-content hatten identische
+   ~60 Zeilen — zusammengefasst über :is() */
+:is(.highlight, .snippet-clipboard-content) {
+    background-color: #21262D !important;
+    color: #C9D1D9 !important;
+    border-radius: 5px !important;
+    padding: 12px !important;
+    margin: 16px 0 !important;
+    overflow: auto !important;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7) !important;
 }
-
-/* Styling for code lines in the snippet */
-.snippet-clipboard-content pre {
-    background-color: transparent !important; /* No background for pre tag */
-    color: inherit !important; /* Inherits the parent element's color */
-    font-family: 'Fira Code', monospace !important; /* Monospace font for code */
-    font-size: 14px !important; /* Appropriate font size */
-    line-height: 1.6 !important; /* Good line height for readability */
-    margin: 0 !important; /* No extra space within the pre tag */
+:is(.highlight, .snippet-clipboard-content) pre {
+    background-color: transparent !important;
+    color: inherit !important;
+    font-family: 'Fira Code', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    margin: 0 !important;
 }
-
-/* Styling for specific elements in the snippet code */
-.snippet-clipboard-content .hljs-keyword,
-.snippet-clipboard-content .hljs-built_in,
-.snippet-clipboard-content .hljs-literal,
-.snippet-clipboard-content .hljs-symbol,
-.snippet-clipboard-content .hljs-bullet,
-.snippet-clipboard-content .hljs-link {
-    color: #FF7B72 !important; /* Highlight keywords in red */
+:is(.highlight, .snippet-clipboard-content) :is(.hljs-keyword, .hljs-built_in, .hljs-literal, .hljs-symbol, .hljs-bullet, .hljs-link) {
+    color: #FF7B72 !important;
 }
-
-.snippet-clipboard-content .hljs-string,
-.snippet-clipboard-content .hljs-title,
-.snippet-clipboard-content .hljs-name,
-.snippet-clipboard-content .hljs-type,
-.snippet-clipboard-content .hljs-attr {
-    color: #A5D6FF !important; /* Highlight strings and titles in blue */
+:is(.highlight, .snippet-clipboard-content) :is(.hljs-string, .hljs-title, .hljs-name, .hljs-type, .hljs-attr) {
+    color: #A5D6FF !important;
 }
-
-.snippet-clipboard-content .hljs-comment,
-.snippet-clipboard-content .hljs-quote {
-    color: #8B949E !important; /* Muted color for comments */
-    font-style: italic !important; /* Italicize comments */
+:is(.highlight, .snippet-clipboard-content) :is(.hljs-comment, .hljs-quote) {
+    color: #8B949E !important;
+    font-style: italic !important;
 }
-
-/* Fancy hover effects for snippet */
-.snippet-clipboard-content:hover {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important; /* Shadow effect on hover */
-    transform: scale(1.02) !important; /* Slight zoom on hover */
+:is(.highlight, .snippet-clipboard-content):hover {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important;
+    transform: scale(1.02) !important;
 }
-
-/* Custom scrollbar styling for dark theme in snippet */
-.snippet-clipboard-content::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+:is(.highlight, .snippet-clipboard-content)::-webkit-scrollbar { width: 8px; height: 8px; }
+:is(.highlight, .snippet-clipboard-content)::-webkit-scrollbar-thumb {
+    background-color: #444C56 !important; border-radius: 10px !important;
 }
+:is(.highlight, .snippet-clipboard-content)::-webkit-scrollbar-track { background-color: #0D1117 !important; }
 
-.snippet-clipboard-content::-webkit-scrollbar-thumb {
-    background-color: #444C56 !important; /* Darker scrollbar thumb */
-    border-radius: 10px !important;
+/* ---------- README ToC in Modals ---------- */
+.readme-toc {
+    background-color: #161B22;
+    border: 1px solid #05172c;
+    border-radius: 2px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
 }
-
-.snippet-clipboard-content::-webkit-scrollbar-track {
-    background-color: #0D1117 !important;
+.readme-toc strong {
+    display: block; color: #C9D1D9; margin-bottom: 8px;
+    font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em;
 }
+.readme-toc ol { margin: 0; padding-left: 18px; }
+.readme-toc li { padding: 2px 0; }
+.readme-toc a { color: #58A6FF; }
+.readme-toc a:hover { color: #1F6FEB; text-decoration: underline; }
 
-/* Responsive styling for images in the footer */
-        @media (max-width: 768px) {
-            .footer-image {
-                height: auto;
-                width: 100%;
-                margin: 20px 0;
-            }
-        }
-
-        /* Table of Contents — generated per modal */
-        .readme-toc {
-            background-color: #161B22;
-            border: 1px solid #05172c;
-            border-radius: 2px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-        .readme-toc strong {
-            display: block;
-            color: #C9D1D9;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        .readme-toc ol {
-            margin: 0;
-            padding-left: 18px;
-        }
-        .readme-toc li {
-            padding: 2px 0;
-        }
-        .readme-toc a {
-            color: #58A6FF;
-        }
-        .readme-toc a:hover {
-            color: #1F6FEB;
-            text-decoration: underline;
-        }
+/* ---------- responsive + reduced motion ---------- */
+@media (max-width: 768px) {
+    .footer-image { height: auto; width: 100%; margin: 20px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .modal.fade .modal-dialog { transition: none; }
+    :is(.highlight, .snippet-clipboard-content):hover { transform: none !important; }
+}
 </style>
 </head>
 <body>
+
+<a class="skip" href="#main">Skip to content</a>
+
 <!-- Start of navigation bar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <!-- Website logo -->
-        <a class="navbar-brand" href="https://github.com/volkansah"><img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo">
+        <a class="navbar-brand" href="https://github.com/volkansah">
+            <img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo">
         </a>
-        <!-- Button for toggling the navigation menu on small screens -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- Navigation links -->
-        <div class="collapse navbar-collapse nav-social-links" id="navbarNav">
-            <div class="d-flex">
-                <ul class="navbar-nav ml-auto">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="d-flex ml-auto">
+                <ul class="navbar-nav">
                     <li class="nav-item active">
                         <a class="nav-link" href="index.html"><span class="nav-link-type">Overview</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="https://volkansah.github.io/"><span class="nav-link-type">German</span></a>
+                        <a class="nav-link" href="/devlog/"><span class="nav-link-type">Devlog</span></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" target="_blank" href="https://jugendamt-deutschland.de/treffen-sie-jade/"><span class="nav-link-type">JadeGPT</span></a>
+                        <a class="nav-link" target="_blank" rel="noopener" href="https://volkansah.github.io/"><span class="nav-link-type">German</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" target="_blank" rel="noopener" href="https://jugendamt-deutschland.de/treffen-sie-jade/"><span class="nav-link-type">JadeGPT</span></a>
                     </li>
                 </ul>
-                <ul class="navbar-nav ml-auto">
-                    <!-- Social media links with icons -->
+                <ul class="navbar-nav">
                     <li class="nav-item">
                         <a href="https://volkansah.github.io" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-github"></i></a>
                     </li>
                     <li class="nav-item">
                         <a href="https://facebook.com/volkansah" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-facebook-f"></i></a>
                     </li>
-
                     <li class="nav-item">
                         <a href="https://www.instagram.com/childrenexchange/" target="_blank" rel="noopener noreferrer nofollow" class="nav-link"><i class="fab fa-instagram"></i></a>
                     </li>
                 </ul>
-
             </div>
         </div>
     </div>
 </nav>
 
 <!-- Main content area -->
-<div class="container mt-5">
+<main id="main" class="container mt-5" tabindex="-1">
     {{ content }}
-</div>
+</main>
 
 <!-- Footer section -->
 <footer>
@@ -442,175 +278,193 @@
     </div>
 </footer>
 
-<!-- JavaScript for Bootstrap and other libraries -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
-<script src="{{ '/assets/js/modal-render-math.js' | relative_url }}"></script>
+<!-- JS: alles via jsdelivr, defer hält die Reihenfolge (jQuery → Bootstrap → Masonry) -->
+<script defer src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script>
 
 <script>
-/* Load README — preserve user's ToC, patch its links to our heading IDs */
-function loadReadme(repoFullName, index) {
-  fetch(`https://api.github.com/repos/${repoFullName}/readme`, {
-    headers: { 'Accept': 'application/vnd.github.v3.html' }
-  })
-  .then(response => response.text())
-  .then(data => {
-    // Fix relative image src → raw.githubusercontent
-    const repoUrl = `https://raw.githubusercontent.com/${repoFullName}/master/`;
-    data = data.replace(/src="([^"]+)"/g, (match, p1) => {
-      if (!p1.startsWith('http') && !p1.startsWith('//')) return `src="${repoUrl}${p1}"`;
-      return match;
-    });
+/* ==================================================================
+   Lazy MathJax — lädt ERST beim ersten Modal-Öffnen (bzw. wenn ein
+   Post `math: true` im Front Matter hat). Vorher hat jede Seite
+   ~1MB MathJax gezogen, auch der Devlog ohne eine einzige Formel.
+   ================================================================== */
+var mathJaxPromise = null;
 
-    // Strip GitHub's anchor wrappers INSIDE headings only
-    // <h2><a id="user-content-xyz" href="#xyz"></a> Text</h2> → <h2>Text</h2>
-    // But we need to remember the original GitHub slug → for ToC link patching below
-    // So we do this in the DOM pass instead of on the string
-    
-    // Strip link wrappers around images — keep <img>, drop <a>
-    data = data.replace(/<a[^>]*>\s*(<img[^>]*\/?>)\s*<\/a>/gi, '$1');
-
-    const container = document.getElementById(`repoContent-${index}`);
-    container.innerHTML = data;
-
-    // --- DOM pass ---
-    // Build a map: GitHub slug → our new heading ID
-    const slugMap = {};
-    const headings = container.querySelectorAll('h1,h2,h3,h4,h5');
-
-    headings.forEach((h, i) => {
-      // Grab GitHub's original slug from the inner <a id="user-content-...">
-      const innerAnchor = h.querySelector('a[id]');
-      if (innerAnchor) {
-        const githubSlug = innerAnchor.id.replace(/^user-content-/, '');
-        // Remove the anchor wrapper, keep heading text clean
-        innerAnchor.replaceWith(...innerAnchor.childNodes);
-        slugMap[githubSlug] = null; // fill in after we assign the new ID
-      }
-
-      // Assign our own clean ID to the heading element
-      const slug = h.textContent.trim()
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-      const newId = `repoContent-${index}-${i + 1}-${slug}`;
-      h.id = newId;
-
-      // Map GitHub slug → new ID (re-derive the same slug GitHub would use)
-      const githubDerivedSlug = h.textContent.trim()
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-      slugMap[githubDerivedSlug] = newId;
-
-      // Also map numeric variants GitHub sometimes uses (slug-1, slug-2)
-      // covered by the anchor extraction above if present
-    });
-
-    // Fill slugMap entries we captured from the inner anchors
-    headings.forEach((h, i) => {
-      const slug = h.id.replace(new RegExp(`^repoContent-${index}-${i+1}-`), '');
-      // Already set above — just ensure nothing is null
-    });
-
-    // Patch ALL internal anchor links in the container (ToC links, cross-refs)
-    container.querySelectorAll('a[href^="#"]').forEach(a => {
-      const raw = a.getAttribute('href').replace(/^#/, '').replace(/^user-content-/, '');
-      const newId = slugMap[raw];
-      if (newId) {
-        a.setAttribute('href', '#' + newId);
-        a.addEventListener('click', function(e) {
-          e.preventDefault();
-          scrollModalTo(`repoContent-${index}`, newId);
+function ensureMathJax(autoTypeset) {
+    if (window.MathJax && window.MathJax.typesetPromise) return Promise.resolve();
+    if (!mathJaxPromise) {
+        mathJaxPromise = new Promise(function (resolve) {
+            window.MathJax = {
+                tex: {
+                    inlineMath: [['\\(', '\\)'], ['$', '$']],
+                    displayMath: [['$$', '$$']]
+                },
+                options: {
+                    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+                },
+                startup: { typeset: !!autoTypeset }
+            };
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+            s.async = true;
+            s.onload = function () {
+                (MathJax.startup && MathJax.startup.promise
+                    ? MathJax.startup.promise : Promise.resolve()).then(resolve, resolve);
+            };
+            s.onerror = resolve; /* CDN down → README trotzdem anzeigen */
+            document.head.appendChild(s);
         });
-      } else {
-        // Unknown anchor — just prevent page jump
-        a.addEventListener('click', function(e) { e.preventDefault(); });
-      }
+    }
+    return mathJaxPromise;
+}
+
+/* ==================================================================
+   loadReadme — branch-sensitiv (main vs. master), ToC-Listener
+   bleiben diesmal erhalten (kein innerHTML-Reset mehr)
+   ================================================================== */
+function loadReadme(repoFullName, index, branch) {
+    var container = document.getElementById('repoContent-' + index);
+
+    fetch('https://api.github.com/repos/' + repoFullName + '/readme', {
+        headers: { 'Accept': 'application/vnd.github.v3.html' }
+    })
+    .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.text();
+    })
+    .then(function (data) {
+        /* relative Bildpfade → raw.githubusercontent, mit echtem Branch */
+        var repoUrl = 'https://raw.githubusercontent.com/' + repoFullName + '/' + (branch || 'master') + '/';
+        data = data.replace(/src="([^"]+)"/g, function (match, p1) {
+            return (p1.indexOf('http') === 0 || p1.indexOf('//') === 0)
+                ? match : 'src="' + repoUrl + p1 + '"';
+        });
+
+        /* <a> um <img> strippen */
+        data = data.replace(/<a[^>]*>\s*(<img[^>]*\/?>)\s*<\/a>/gi, '$1');
+
+        container.innerHTML = data;
+
+        /* Headings bereinigen, eigene IDs vergeben, Slug-Map bauen */
+        var slugMap = {};
+        container.querySelectorAll('h1,h2,h3,h4,h5').forEach(function (h, i) {
+            var githubSlug = null;
+            var innerAnchor = h.querySelector('a[id]');
+            if (innerAnchor) {
+                githubSlug = innerAnchor.id.replace(/^user-content-/, '');
+                innerAnchor.replaceWith(...innerAnchor.childNodes);
+            }
+            var slug = h.textContent.trim().toLowerCase()
+                .replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+            var newId = 'repoContent-' + index + '-' + (i + 1) + '-' + slug;
+            h.id = newId;
+            slugMap[slug] = newId;
+            if (githubSlug) slugMap[githubSlug] = newId;
+        });
+
+        /* interne Anker (ToC etc.) auf neue IDs umlenken */
+        container.querySelectorAll('a[href^="#"]').forEach(function (a) {
+            var raw = a.getAttribute('href').replace(/^#/, '').replace(/^user-content-/, '');
+            var newId = slugMap[raw];
+            if (newId) {
+                a.setAttribute('href', '#' + newId);
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    scrollModalTo(container.id, newId);
+                });
+            } else {
+                a.addEventListener('click', function (e) { e.preventDefault(); });
+            }
+        });
+
+        /* Mathe NUR im Modal typesetten — kein innerHTML-Reset,
+           damit die Listener oben überleben */
+        ensureMathJax().then(function () {
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetPromise([container]).catch(function (err) {
+                    console.error('MathJax typeset error:', err);
+                });
+            }
+        });
+    })
+    .catch(function () {
+        container.innerHTML = '<p>README could not be loaded.</p>';
     });
-
-    // Hand off to modal-render-math.js for MathJax/KaTeX
-    insertReadmeHtmlAndRender(container.innerHTML, container);
-  })
-  .catch(() => {
-    document.getElementById(`repoContent-${index}`).innerHTML = '<p>README could not be loaded.</p>';
-  });
 }
 
-// Scroll anchor target into view inside modal-body
+/* Anker im Modal-Body anscrollen */
 function scrollModalTo(modalBodyId, targetId) {
-  const modalBody = document.getElementById(modalBodyId);
-  const target = document.getElementById(targetId);
-  if (!modalBody || !target) return;
-  // target.offsetTop is relative to its offsetParent, walk up to modalBody
-  let top = 0;
-  let el = target;
-  while (el && el !== modalBody) {
-    top += el.offsetTop;
-    el = el.offsetParent;
-  }
-  modalBody.scrollTo({ top: top - 16, behavior: 'smooth' });
+    var modalBody = document.getElementById(modalBodyId);
+    var target = document.getElementById(targetId);
+    if (!modalBody || !target) return;
+    var top = 0, el = target;
+    while (el && el !== modalBody) {
+        top += el.offsetTop;
+        el = el.offsetParent;
+    }
+    modalBody.scrollTo({ top: top - 16, behavior: 'smooth' });
 }
 
-// Typewriter effect for nav links
-// Adjust SPEED here (ms per character) ↓
-const TYPEWRITER_SPEED = 55;
+/* ==================================================================
+   Typewriter — respektiert prefers-reduced-motion
+   ================================================================== */
+(function () {
+    var SPEED = 55; /* ms pro Zeichen */
+    var reduced = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-document.addEventListener('DOMContentLoaded', function () {
-  const spans = document.querySelectorAll('.nav-link-type');
-  let globalDelay = 120; // initial delay before first link starts typing
+    function boot() {
+        var spans = document.querySelectorAll('.nav-link-type');
+        var delay = 120;
 
-  spans.forEach(function (span) {
-    const text = span.textContent.trim();
-    span.textContent = '';
-    span.style.width = '0';
+        spans.forEach(function (span) {
+            var text = span.textContent.trim();
+            span.textContent = '';
 
-    // Measure natural width without affecting layout
-    const ghost = document.createElement('span');
-    ghost.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:inherit;';
-    ghost.textContent = text;
-    document.body.appendChild(ghost);
-    const fullWidth = ghost.offsetWidth;
-    document.body.removeChild(ghost);
+            if (reduced) { /* keine Animation gewünscht → sofort anzeigen */
+                span.textContent = text;
+                span.style.width = 'auto';
+                span.classList.add('typing-done');
+                return;
+            }
 
-    let charIndex = 0;
-    const startDelay = globalDelay;
+            /* Breite messen, ohne Layout zu verschieben */
+            var ghost = document.createElement('span');
+            ghost.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font:inherit;';
+            ghost.textContent = text;
+            document.body.appendChild(ghost);
+            var fullWidth = ghost.offsetWidth;
+            document.body.removeChild(ghost);
 
-    setTimeout(function type() {
-      if (charIndex < text.length) {
-        span.textContent += text[charIndex];
-        // Animate width so the reveal looks natural
-        span.style.width = ((charIndex + 1) / text.length * fullWidth) + 'px';
-        charIndex++;
-        setTimeout(type, TYPEWRITER_SPEED);
-      } else {
-        span.style.width = fullWidth + 'px';
-        span.classList.add('typing-done');
-      }
-    }, startDelay);
+            span.style.width = '0';
+            var i = 0;
+            setTimeout(function type() {
+                if (i < text.length) {
+                    span.textContent += text[i];
+                    span.style.width = ((i + 1) / text.length * fullWidth) + 'px';
+                    i++;
+                    setTimeout(type, SPEED);
+                } else {
+                    span.style.width = fullWidth + 'px';
+                    span.classList.add('typing-done');
+                }
+            }, delay);
 
-    // Next link starts after this one finishes + small gap
-    globalDelay += text.length * TYPEWRITER_SPEED + 180;
-  });
-});
+            delay += text.length * SPEED + 180;
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
+
+/* Posts mit Mathe: `math: true` in den Front Matter → MathJax lädt + typesettet die Seite */
+{% if page.math %}ensureMathJax(true);{% endif %}
 </script>
 
-    <!-- MathJax konfigurieren -->
-<script>
-window.MathJax = {
-  tex: {
-    inlineMath: [['\\(','\\)'], ['$', '$']],
-    displayMath: [['$$','$$']]
-  },
-  options: {
-    skipHtmlTags: ['script','noscript','style','textarea','pre','code']
-  }
-};
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
