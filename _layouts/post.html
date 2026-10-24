@@ -1,0 +1,129 @@
+---
+layout: default
+---
+
+<style>
+/* ---------- single post: "git show" ---------------------------- */
+.post-shell { max-width: 740px; margin-inline: auto; }
+
+.post-term {
+    background: #161B22;
+    border: 1px solid #05172c;
+    border-radius: 2px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, .5);
+    margin-bottom: 1.8rem;
+}
+.term-bar { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid #05172c; }
+.term-bar i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.term-bar i:nth-child(1) { background: #FF5F56; }
+.term-bar i:nth-child(2) { background: #FFBD2E; }
+.term-bar i:nth-child(3) { background: #27C93F; }
+.term-body { padding: 14px 18px; font-family: 'Fira Code', monospace; font-size: 13px; color: #8B949E; }
+.term-body .prompt { color: #3FB950; }
+.term-body .cmd { color: #C9D1D9; }
+.cursor-blink {
+    display: inline-block; width: .55em; height: 1em;
+    background: #58A6FF; vertical-align: -2px;
+    animation: blink 1.2s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.post-meta {
+    display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; align-items: center;
+    font-family: 'Fira Code', monospace; font-size: 12px; color: #8B949E;
+    margin: 0 0 1.4rem;
+}
+.post-hash { color: #A5D6FF; background: none; padding: 0; }
+.post-tag {
+    border: 1px solid #05172c; background: #0D1117; color: #8B949E;
+    padding: 2px 8px; border-radius: 2px;
+}
+
+.post-title { color: #C9D1D9; font-size: 2rem; margin-bottom: .4rem; }
+.post-sub { font-family: 'Fira Code', monospace; font-size: 12px; color: #6E7681; margin-bottom: 2.2rem; }
+
+/* ---------- content: GitHub-dark flavored markdown ------------- */
+.post-body { font-size: 1.05rem; line-height: 1.75; color: #C9D1D9; }
+.post-body > :first-child { margin-top: 0; }
+.post-body h1, .post-body h2 { border-bottom: 1px solid #21262D; padding-bottom: .3em; margin-top: 2.2rem; }
+.post-body h2 { font-size: 1.5rem; }
+.post-body h3 { font-size: 1.25rem; margin-top: 1.8rem; }
+.post-body a { color: #58A6FF; }
+.post-body a:hover { color: #1F6FEB; }
+.post-body code {
+    background: #161B22; border: 1px solid #05172c;
+    padding: .15em .4em; border-radius: 2px; font-size: 85%; color: #C9D1D9;
+}
+/* nicht mit den .highlight-Styles aus default.html beißen */
+.post-body pre code, .post-body .highlight code { background: none; border: 0; padding: 0; font-size: 100%; }
+.post-body blockquote { border-left: 3px solid #1F6FEB; color: #8B949E; padding: .1rem 0 .1rem 1.1rem; margin: 1.4rem 0; }
+.post-body img { max-width: 100%; border: 1px solid #21262D; border-radius: 2px; }
+.post-body table { border-collapse: collapse; margin: 1.4rem 0; display: block; overflow-x: auto; }
+.post-body th, .post-body td { border: 1px solid #21262D; padding: 6px 13px; }
+.post-body th { background: #161B22; }
+.post-body hr { border: 0; border-top: 1px solid #21262D; margin: 2rem 0; }
+.post-body ul, .post-body ol { padding-left: 2rem; }
+.post-body li + li { margin-top: .3rem; }
+
+/* ---------- prev / next ----------------------------------------- */
+.post-nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; }
+.post-nav a {
+    flex: 1; min-width: 180px;
+    display: flex; flex-direction: column; gap: .2rem;
+    background: #161B22; border: 1px solid #05172c; border-radius: 2px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, .5);
+    padding: 14px 18px; text-decoration: none;
+    transition: border-color .2s ease, transform .2s ease;
+}
+.post-nav a:hover { border-color: #1F6FEB; transform: translateY(-2px); text-decoration: none; }
+.post-nav .nav-label { font-family: 'Fira Code', monospace; font-size: 11px; color: #6E7681; }
+.post-nav .nav-title { color: #58A6FF; font-size: .95rem; }
+.post-nav .next { text-align: right; align-items: flex-end; }
+
+@media (prefers-reduced-motion: reduce) {
+    .post-nav a { transition: none; }
+    .cursor-blink { animation: none; }
+}
+</style>
+
+<article class="post-shell">
+    <div class="post-term">
+        <div class="term-bar"><i></i><i></i><i></i></div>
+        <div class="term-body">
+            <span class="prompt">volkan@devlog:~$</span>
+            <span class="cmd">git show {{ page.hash | default: page.slug | slice: 0, 7 }}</span><span class="cursor-blink" aria-hidden="true"></span>
+        </div>
+    </div>
+
+    <header>
+        <p class="post-meta">
+            <code class="post-hash">{{ page.hash | default: page.slug | slice: 0, 7 }}</code>
+            <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y-%m-%d" }}</time>
+            <span>volkan</span>
+            {% for tag in page.tags %}<span class="post-tag">{{ tag }}</span>{% endfor %}
+        </p>
+        <h1 class="post-title">{{ page.title | escape }}</h1>
+        {% assign words = page.content | number_of_words %}
+        {% assign minutes = words | divided_by: 200 | at_least: 1 %}
+        <p class="post-sub">{{ words }} words &middot; ~{{ minutes }} min read</p>
+    </header>
+
+    <div class="post-body">
+        {{ content }}
+    </div>
+
+    <nav class="post-nav" aria-label="Post navigation">
+        {% if page.previous %}
+        <a href="{{ page.previous.url | relative_url }}">
+            <span class="nav-label">&larr; older commit</span>
+            <span class="nav-title">{{ page.previous.title | escape }}</span>
+        </a>
+        {% endif %}
+        {% if page.next %}
+        <a class="next" href="{{ page.next.url | relative_url }}">
+            <span class="nav-label">newer commit &rarr;</span>
+            <span class="nav-title">{{ page.next.title | escape }}</span>
+        </a>
+        {% endif %}
+    </nav>
+</article>
