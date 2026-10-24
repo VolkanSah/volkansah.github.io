@@ -4,7 +4,9 @@ description: >-
 baseurl: "/" # The name of your repository
 url: "https://volkansah.github.io" # Your GitHub Pages URL
 theme: minima # Or your custom theme, e.g., "obsidian-nightfall" if developed. ddefault 
-
+plugins:
+  - jekyll-feed      # /feed.xml (Devlog als RSS)
+  - jekyll-sitemap   # /sitemap.xml
 kramdown:
   input: GFM
   math_engine: mathjax
