@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Hello, Devlog"
+title: "Hello, Devlog DEMO"
 hash: f3a9c21
 tags: [meta, devlog]
 ---
@@ -16,7 +16,7 @@ Datei in `_posts/` legen, pushen, fertig. Der Dateiname bestimmt Datum **und** S
 ## Code
 
 ```php
-echo 'Die .highlight-Styles aus deinem Layout greifen automatisch';
+echo 'Die .highlight-Styles aus der Layout greifen automatisch';
 ```
 
-> Blockquotes, Tabellen und $MathJax$ funktionieren out of the box — dein `default.html` lädt das ja eh.
+> Blockquotes, Tabellen und $MathJax$ funktionieren out of the box — die `default.html` lädt das ja eh.
