@@ -75,6 +75,7 @@ document.addEventListener('keydown', function (e) {
    Erwartet Kinder mit CSS-Breite (.col-md-4). Aufruf: cardGrid(el) */
 function cardGrid(container) {
     if (container._grid) container._grid.stop();
+    container.classList.remove('grid-animate');   /* erster Layout ohne Animation */
 
     function layout() {
         var items = container.querySelectorAll(':scope > .col-md-4');
@@ -100,6 +101,7 @@ function cardGrid(container) {
     window.addEventListener('resize', layout);
     container._grid = { stop: function () { if (ro) ro.disconnect(); window.removeEventListener('resize', layout); } };
     layout();
+    requestAnimationFrame(function () { container.classList.add('grid-animate'); });
 }
 window.cardGrid = cardGrid;
 

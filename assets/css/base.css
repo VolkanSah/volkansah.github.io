@@ -1,3 +1,8 @@
+/* ==================================================================
+   base.css — ersetzt Bootstrap 4 + FontAwesome (nur was die Seite braucht)
+   Klassennamen bewusst wie bei Bootstrap, damit index.md / devlog.md /
+   Posts / README-Modals unverändert bleiben.
+   ================================================================== */
 
 /* ---------- reboot ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -134,9 +139,13 @@ button:not(:disabled), [type="button"]:not(:disabled) { cursor: pointer; }
 .close:hover { opacity: .75; text-decoration: none; }
 .modal-header .close { padding: 1rem; margin: -1rem -1rem -1rem auto; }
 
+/* ---------- Masonry-Animation beim Resize (wie Masonry.js, 0.4s) ---------- */
+.grid-animate > .col-md-4 { transition: left .4s, top .4s; }
+.grid-animate { transition: height .4s; }
+
 /* ---------- icons (SVG-Sprite im Layout) ---------- */
 .icon { display: inline-block; height: 1em; fill: currentColor; vertical-align: -.125em; }
 
 @media (prefers-reduced-motion: reduce) {
-    .fade, .btn { transition: none; }
+    .fade, .btn, .grid-animate, .grid-animate > .col-md-4 { transition: none; }
 }
