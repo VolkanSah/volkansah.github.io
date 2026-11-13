@@ -34,7 +34,10 @@ function esc(s) {
     });
 }
 
+function resetGrid() { listEl.removeAttribute('style'); }
+
 function renderError(msg) {
+    resetGrid();
     listEl.innerHTML =
         '<div class="col-12">' +
             '<div class="card"><div class="card-body text-center">' +
@@ -69,6 +72,7 @@ function fetchAllRepos(page) {
         return;
     }
 
+    resetGrid();
     listEl.innerHTML = '<div class="col-12 text-center text-muted py-5">Loading repositories…</div>';
 
     fetch('https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=' + perPage + '&page=' + page)
@@ -102,6 +106,7 @@ function renderRepos(data, linkHeader) {
                repo.name !== 'VolkanSah';
     });
 
+    resetGrid();
     if (repos.length === 0) {
         listEl.innerHTML = '<div class="col-12 text-center text-muted py-5">No repositories on this page.</div>';
         updatePaginationButtons(linkHeader);
@@ -149,8 +154,8 @@ function renderRepos(data, linkHeader) {
     listEl.innerHTML = cards;
     document.body.appendChild(modals);
 
-    /* Karten haben keine Bilder → imagesLoaded überflüssig, Masonry direkt */
-    new Masonry(listEl, { itemSelector: '.col-md-4', percentPosition: true });
+    /* Karten haben keine Bilder → direkt layouten (cardGrid aus assets/js/site.js) */
+    cardGrid(listEl);
     updatePaginationButtons(linkHeader);
 }
 
@@ -161,6 +166,11 @@ nextBtn.addEventListener('click', function () {
     fetchAllRepos(++currentPage);
 });
 
-fetchAllRepos(currentPage);
+/* erst nach DOMContentLoaded: dann ist das deferred site.js (cardGrid, Modal) garantiert geladen */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { fetchAllRepos(currentPage); });
+} else {
+    fetchAllRepos(currentPage);
+}
 })();
 </script>
