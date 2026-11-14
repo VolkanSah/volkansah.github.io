@@ -20,8 +20,34 @@ title: My GitHub Repositories
 
 var currentPage = 1;
 var perPage = 18;
-var CACHE_TTL = 3 * 60 * 1000;   /* 3 min — schont das Rate-Limit (60 req/h ohne Token) */
-var cache = {};                  /* page -> { data, linkHeader, ts } */
+var CACHE_TTL = 10 * 60 * 1000;  /* 10 min — schont das Rate-Limit (60 req/h ohne Token) */
+var LS_PREFIX = 'vs:repos:v1:';  /* localStorage: überlebt Reload, Devlog-Besuch, Tab-Wechsel */
+var cache = {};                  /* page -> { data, linkHeader, ts } (RAM-Layer davor) */
+
+function cacheGet(page, allowStale) {
+    var hit = cache[page];
+    if (!hit) {
+        try {
+            var raw = localStorage.getItem(LS_PREFIX + page);
+            if (raw) hit = cache[page] = JSON.parse(raw);
+        } catch (e) {}
+    }
+    if (!hit) return null;
+    return (allowStale || Date.now() - hit.ts < CACHE_TTL) ? hit : null;
+}
+
+function cacheSet(page, entry) {
+    cache[page] = entry;
+    try { localStorage.setItem(LS_PREFIX + page, JSON.stringify(entry)); } catch (e) {}
+}
+
+/* nur die Felder, die wir wirklich brauchen → ~300 B statt ~5 KB pro Repo */
+function slim(repo) {
+    return {
+        name: repo.name, full_name: repo.full_name, description: repo.description,
+        fork: repo.fork, html_url: repo.html_url, default_branch: repo.default_branch
+    };
+}
 
 var listEl  = document.getElementById('repo-list');
 var prevBtn = document.getElementById('prevPage');
@@ -66,8 +92,8 @@ function updatePaginationButtons(linkHeader) {
 }
 
 function fetchAllRepos(page) {
-    var hit = cache[page];
-    if (hit && Date.now() - hit.ts < CACHE_TTL) {
+    var hit = cacheGet(page, false);
+    if (hit) {
         renderRepos(hit.data, hit.linkHeader);
         return;
     }
@@ -78,7 +104,9 @@ function fetchAllRepos(page) {
     fetch('https://api.github.com/users/volkansah/repos?type=owner&sort=updated&per_page=' + perPage + '&page=' + page)
         .then(function (response) {
             if (response.status === 403) {
-                throw new Error('GitHub API rate limit reached — please try again in a few minutes.');
+                var e = new Error('GitHub API rate limit reached — please try again in a few minutes.');
+                e.rateLimited = true;
+                throw e;
             }
             if (!response.ok) {
                 throw new Error('GitHub API error ' + response.status);
@@ -87,11 +115,15 @@ function fetchAllRepos(page) {
             return response.json().then(function (data) { return { data: data, link: linkHeader }; });
         })
         .then(function (result) {
-            cache[page] = { data: result.data, linkHeader: result.link, ts: Date.now() };
-            renderRepos(result.data, result.link);
+            var slimmed = result.data.map(slim);
+            cacheSet(page, { data: slimmed, linkHeader: result.link, ts: Date.now() });
+            renderRepos(slimmed, result.link);
         })
         .catch(function (error) {
             console.error('Error:', error);
+            /* Rate-Limit/Netzfehler: lieber veraltete Daten zeigen als eine Fehlerseite */
+            var stale = cacheGet(page, true);
+            if (stale) { renderRepos(stale.data, stale.linkHeader); return; }
             renderError(error.message || 'Error loading repositories.');
         });
 }
@@ -159,12 +191,14 @@ function renderRepos(data, linkHeader) {
     updatePaginationButtons(linkHeader);
 }
 
-prevBtn.addEventListener('click', function () {
-    if (currentPage > 1) fetchAllRepos(--currentPage);
-});
-nextBtn.addEventListener('click', function () {
-    fetchAllRepos(++currentPage);
-});
+/* Seitenwechsel: erst nach oben (smooth, falls erlaubt), dann laden */
+function goTo(page) {
+    currentPage = page;
+    window.scrollTo(0, 0);
+    fetchAllRepos(page);
+}
+prevBtn.addEventListener('click', function () { if (currentPage > 1) goTo(currentPage - 1); });
+nextBtn.addEventListener('click', function () { goTo(currentPage + 1); });
 
 /* erst nach DOMContentLoaded: dann ist das deferred site.js (cardGrid, Modal) garantiert geladen */
 if (document.readyState === 'loading') {

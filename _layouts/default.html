@@ -45,7 +45,24 @@ a:hover { color: #1F6FEB; }
     border-radius: 2px;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
 }
-.navbar { background-color: #161B22; }
+.navbar { background-color: #161B22; border-bottom: 1px solid #21262d; padding: .6rem 1rem; }
+
+/* Wortmarke statt Bild-Logo: skaliert, 0 Requests, passt zur Navi-Höhe */
+.brand {
+    display: inline-flex; align-items: baseline;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 1.4rem; font-weight: 700; letter-spacing: -.03em; line-height: 1;
+    color: #E6EDF3; padding: .25rem 0;
+}
+.brand:hover { color: #E6EDF3; text-decoration: none; }
+.brand-slash { color: #58A6FF; margin-right: .08em; transition: color .15s; }
+.brand:hover .brand-slash { color: #f00; }
+.brand-cursor {
+    display: inline-block; width: .55em; height: .13em; margin-left: .12em;
+    background: #f00; animation: brand-blink 1.1s steps(1) infinite;
+}
+@keyframes brand-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .brand-cursor { animation: none; } }
 
 /* Smooth scroll nur für Leute, die Bewegung mögen */
 @media (prefers-reduced-motion: no-preference) {
@@ -211,8 +228,8 @@ footer {
 <!-- Start of navigation bar -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand" href="https://github.com/volkansah">
-            <img src="{{ '/assets/img/logo.webp' | relative_url }}" alt="AI Code Craft Website Logo">
+        <a class="navbar-brand brand" href="https://github.com/volkansah" aria-label="volkansah — GitHub">
+            <span class="brand-slash" aria-hidden="true">//</span><span class="brand-name">volkan<span class="brand-s">ş</span>ah</span><span class="brand-cursor" aria-hidden="true"></span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -327,16 +344,33 @@ function ensureMathJax(autoTypeset) {
    loadReadme — branch-sensitiv (main vs. master), ToC-Listener
    bleiben diesmal erhalten (kein innerHTML-Reset mehr)
    ================================================================== */
-function loadReadme(repoFullName, index, branch) {
-    var container = document.getElementById('repoContent-' + index);
-
-    fetch('https://api.github.com/repos/' + repoFullName + '/readme', {
+/* README-HTML 30 min in sessionStorage — Modal erneut öffnen = 0 API-Calls */
+function getReadmeHtml(repo) {
+    var key = 'vs:readme:v1:' + repo, ttl = 30 * 60 * 1000;
+    try {
+        var raw = sessionStorage.getItem(key);
+        if (raw) {
+            var c = JSON.parse(raw);
+            if (Date.now() - c.ts < ttl) return Promise.resolve(c.html);
+        }
+    } catch (e) {}
+    return fetch('https://api.github.com/repos/' + repo + '/readme', {
         headers: { 'Accept': 'application/vnd.github.v3.html' }
     })
     .then(function (response) {
         if (!response.ok) throw new Error('HTTP ' + response.status);
         return response.text();
     })
+    .then(function (html) {
+        try { sessionStorage.setItem(key, JSON.stringify({ ts: Date.now(), html: html })); } catch (e) {}
+        return html;
+    });
+}
+
+function loadReadme(repoFullName, index, branch) {
+    var container = document.getElementById('repoContent-' + index);
+
+    getReadmeHtml(repoFullName)
     .then(function (data) {
         /* relative Bildpfade → raw.githubusercontent, mit echtem Branch */
         var repoUrl = 'https://raw.githubusercontent.com/' + repoFullName + '/' + (branch || 'master') + '/';
